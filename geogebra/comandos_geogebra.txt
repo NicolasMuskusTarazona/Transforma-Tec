@@ -1,0 +1,126 @@
+TRANSFORMA-TEC - COMANDOS Y PROCEDIMIENTO PARA GEOGEBRA
+=======================================================
+
+Objetivo
+--------
+Construir en GeoGebra una figura triangular y comprobar por separado:
+1. Rotación controlada por un deslizador angular alpha.
+2. Escalamiento controlado por un deslizador k.
+3. Traslación controlada por los deslizadores h y v.
+4. Transformación combinada mediante una matriz homogénea 3x3.
+
+IMPORTANTE
+----------
+Los comandos siguientes usan los nombres internacionales de GeoGebra (Polygon,
+Rotate, Dilate, Translate, Element). Si la instalación está configurada en
+español, GeoGebra puede mostrar los nombres traducidos. Introduce cada línea
+por separado en la barra de entrada. Primero crea los deslizadores indicados.
+
+PASO 1. Crear los deslizadores
+------------------------------
+Con la herramienta Deslizador, crea estos cuatro deslizadores:
+
+- alpha: mínimo 0°, máximo 360°, incremento 1°. Activa la opción Ángulo.
+- k: mínimo 0.2, máximo 3, incremento 0.1.
+- h: mínimo -5, máximo 5, incremento 0.1.
+- v: mínimo -5, máximo 5, incremento 0.1.
+
+Ubícalos en la vista gráfica y deja visibles sus controles. Los nombres deben
+ser exactamente alpha, k, h y v para que coincidan con los comandos.
+
+PASO 2. Crear el triángulo original
+-----------------------------------
+Introduce estas líneas:
+
+A = (0, 0)
+B = (4, 0)
+C = (1, 3)
+triangulo = Polygon(A, B, C)
+
+El triángulo ABC será la figura de referencia. Cambia su estilo para que se
+distinga de las figuras transformadas.
+
+PASO 3. Rotación
+----------------
+rotado = Rotate(triangulo, alpha, (0, 0))
+
+Mueve el deslizador alpha y comprueba que el triángulo gira alrededor del
+origen. La figura original debe permanecer visible.
+
+PASO 4. Escalamiento
+--------------------
+escalado = Dilate(triangulo, k, (0, 0))
+
+Mueve el deslizador k. Si k es mayor que 1, la figura aumenta de tamaño; si
+está entre 0 y 1, disminuye. El centro de escalamiento es el origen.
+
+PASO 5. Traslación
+------------------
+trasladado = Translate(triangulo, (h, v))
+
+Mueve h y v para desplazar la figura horizontal y verticalmente. La forma,
+las longitudes y el área deben conservarse.
+
+PASO 6. Matriz homogénea 3x3
+----------------------------
+La siguiente matriz combina escalamiento uniforme, rotación y traslación.
+La transformación aplicada a un punto (x,y) en coordenadas homogéneas es:
+
+       [ k*cos(alpha)   -k*sin(alpha)   h ]
+M  =   [ k*sin(alpha)    k*cos(alpha)   v ]
+       [      0               0         1 ]
+
+Introduce la matriz y transforma los tres vértices:
+
+M = {{k*cos(alpha), -k*sin(alpha), h}, {k*sin(alpha), k*cos(alpha), v}, {0, 0, 1}}
+
+Ah = {x(A), y(A), 1}
+Bh = {x(B), y(B), 1}
+Ch = {x(C), y(C), 1}
+
+AhT = M * Ah
+BhT = M * Bh
+ChT = M * Ch
+
+AT = (Element(AhT, 1), Element(AhT, 2))
+BT = (Element(BhT, 1), Element(BhT, 2))
+CT = (Element(ChT, 1), Element(ChT, 2))
+
+trianguloHomogeneo = Polygon(AT, BT, CT)
+
+Mueve alpha, k, h y v. Comprueba que el polígono trianguloHomogeneo cambia
+de acuerdo con los cuatro deslizadores.
+
+PASO 7. Comprobaciones
+----------------------
+- alpha = 0° y k = 1: no hay rotación ni cambio de escala.
+- h = 0 y v = 0: no hay traslación.
+- k = 1: la rotación y la traslación conservan las longitudes.
+- k distinto de 1: las longitudes se multiplican por |k| y el área por k^2.
+- El determinante de la parte lineal de M es k^2. Para k distinto de cero,
+  la transformación no colapsa el triángulo.
+
+Para mostrar el determinante de la parte lineal, introduce:
+
+L = {{k*cos(alpha), -k*sin(alpha)}, {k*sin(alpha), k*cos(alpha)}}
+determinanteLineal = Determinant(L)
+
+PASO 8. Evidencias que deben capturarse
+--------------------------------------
+Guarda capturas reales de GeoGebra donde se vea:
+
+Figura 1. Triángulo original y rotación con el deslizador alpha visible.
+Figura 2. Triángulo original y escalamiento con el deslizador k visible.
+Figura 3. Triángulo original y traslación con h y v visibles.
+Figura 4. Triángulo transformado por la matriz homogénea, la matriz M y los
+          deslizadores alpha, k, h y v.
+
+En cada captura:
+- Mantén visibles los ejes y la cuadrícula.
+- Identifica los vértices y las figuras.
+- Evita que los objetos o las etiquetas se superpongan.
+- Añade en el informe número, título y nota explicativa según APA 7.
+
+No afirmes en el informe que las capturas fueron generadas si todavía no se
+ha construido y ejecutado el recurso. Guarda el archivo de GeoGebra (.ggb) y
+comparte su enlace junto con las capturas.

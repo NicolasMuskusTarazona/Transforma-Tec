@@ -1,46 +1,42 @@
-
 from src.gamificacion import (
-    obtener_preguntas,
-    evaluar_respuesta,
-    calcular_puntaje,
-    determinar_nivel,
-    generar_retroalimentacion,
-    generar_resumen
+    generar_retos, evaluar_reto, PartidaGamificada, PUNTOS_DESBLOQUEO
 )
 
-# Obtener preguntas
-preguntas = obtener_preguntas()
+# La semilla garantiza que la selección y los valores de los retos sean reproducibles.
+retos_a = generar_retos(seed=2026)
+retos_b = generar_retos(seed=2026)
+assert retos_a == retos_b
+assert len(retos_a) == 5
+assert all(len(nivel["retos"]) == 3 for nivel in retos_a)
+assert sum(len(n["retos"]) for n in retos_a) == 15
 
-assert len(preguntas) == 5
+# Evaluación numérica y textual.
+assert evaluar_reto({"tipo": "numero", "respuesta": 5, "tolerancia": 1e-6}, "5")
+assert evaluar_reto({"tipo": "texto", "respuesta": "Sí"}, "si")
+assert not evaluar_reto({"tipo": "numero", "respuesta": 5, "tolerancia": 1e-6}, "7")
 
-# Evaluar respuestas
-assert evaluar_respuesta(preguntas[0], "5")
-assert not evaluar_respuesta(preguntas[0], "10")
+# Un recorrido perfecto completa los cinco niveles y otorga cinco insignias.
+partida = PartidaGamificada(seed=2026)
+while not partida.finalizada:
+    reto = partida.niveles[partida.nivel_actual]["retos"][partida.reto_actual]
+    resultado = partida.responder(str(reto["respuesta"]))
+    assert resultado["correcta"]
 
-# Calcular puntuación
-resultados = [
-    {"correcta": True, "puntos": 10},
-    {"correcta": True, "puntos": 15},
-    {"correcta": False, "puntos": 20}
-]
+resumen = partida.resumen()
+assert resumen["estado"] == "Completada"
+assert resumen["correctas"] == 15
+assert resumen["incorrectas"] == 0
+assert len(resumen["insignias"]) == 5
+assert resumen["puntaje"] == 150
 
-assert calcular_puntaje(resultados) == 25
+# Tres errores agotan las vidas e impiden desbloquear el nivel siguiente.
+partida_error = PartidaGamificada(seed=2026)
+for _ in range(3):
+    partida_error.responder("__respuesta_incorrecta__")
+assert partida_error.finalizada
+assert partida_error.vidas == 0
+assert len(partida_error.insignias) == 0
+assert partida_error.resumen()["estado"] == "Finalizada"
 
-# Comprobar niveles
-assert determinar_nivel(10) == "Principiante"
-assert determinar_nivel(30) == "Intermedio"
-assert determinar_nivel(50) == "Avanzado"
-assert determinar_nivel(70) == "Experto"
-
-# Retroalimentación
-assert "Excelente" in generar_retroalimentacion(5, 5)
-
-# Resumen de partida
-resumen = generar_resumen(resultados)
-
-assert resumen["correctas"] == 2
-assert resumen["incorrectas"] == 1
-assert resumen["puntaje"] == 25
-assert resumen["nivel"] == "Intermedio"
-
-print("Todas las pruebas de gamificación fueron exitosas.")
+print("Todas las pruebas del sistema de gamificación fueron exitosas.")
+print("15 retos reproducibles, evaluación, vidas, puntaje, insignias y desbloqueo verificados.")
